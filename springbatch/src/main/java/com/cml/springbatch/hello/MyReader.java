@@ -18,8 +18,8 @@ public class MyReader implements ItemReader<Person> {
 		if (count > 11) {
 			return null;
 		}
-		log.info("=======reader 读入数据====>"+count);
-		return new Person("first:" + count, "lastName:" + count);
+		log.info("=======reader 读入数据====>" + count);
+		return new Person("first:" + count, "lastName:" + count, count);
 	}
 
 }

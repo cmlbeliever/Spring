@@ -16,7 +16,13 @@ public class PersonItemProcessor implements ItemProcessor<Person, Person> {
 
 		final Person transformedPerson = new Person(firstName, lastName);
 
-		log.info("Converting (" + person + ") into (" + transformedPerson + ")");
+		// 模拟非法数据剔除
+		if (person.getId() % 5 == 0) {
+			log.info("data Converting 非法数据：" + person);
+			return null;
+		}
+
+		log.info("data Converting (" + person + ") into (" + transformedPerson + ")");
 
 		return transformedPerson;
 	}
