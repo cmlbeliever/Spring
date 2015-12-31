@@ -13,7 +13,8 @@
 		</batch:listeners>
 		<batch:step id="firstStep">
 			<batch:tasklet>
-				<batch:chunk commit-interval="5" reader="reader" writer="writer">
+				<batch:chunk commit-interval="5" reader="reader" writer="writer"
+					processor="userProcessor">
 				</batch:chunk>
 			</batch:tasklet>
 			<batch:next on="COMPLETED" to="secondStep" />
@@ -24,6 +25,8 @@
 			</batch:tasklet>
 		</batch:step>
 	</batch:job>
+
+	<bean id="userProcessor" class="com.cml.springbatch.file.UserDataProcessor" />
 
 	<bean id="runIdCrementer"
 		class="org.springframework.batch.core.launch.support.RunIdIncrementer" />
@@ -41,10 +44,10 @@
 	<bean id="jobListener"
 		class="com.cml.springbatch.hello.JobCompletionNotificationListener"></bean>
 
-	<bean id="reader" class="org.springframework.batch.item.file.FlatFileItemReader">
+	<bean id="reader" class="org.springframework.batch.item.file.FlatFileItemReader"
+		scope="step">
 		<property name="encoding" value="UTF-8" />
-		<property name="resource"
-			value="file:#{jobParameters['inputFilePath']}" />
+		<property name="resource" value="classpath:#{jobParameters['inputFilePath']}" />
 		<property name="lineMapper">
 			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
 				<property name="lineTokenizer" ref="lineTokenizer" />
@@ -64,7 +67,7 @@
 	<bean id="lineTokenizer"
 		class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
 		<property name="delimiter" value="," />
-		<property name="strict" value="true" />
+		<property name="strict" value="false" />
 		<property name="names" value="userId,name,pass" />
 	</bean>
 
