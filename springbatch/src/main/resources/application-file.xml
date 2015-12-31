@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/batch 
+	http://www.springframework.org/schema/batch/spring-batch.xsd
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<batch:job id="firstJob" restartable="true" incrementer="runIdCrementer">
+		<batch:listeners>
+			<batch:listener ref="jobListener" />
+		</batch:listeners>
+		<batch:step id="firstStep">
+			<batch:tasklet>
+				<batch:chunk commit-interval="5" reader="reader" writer="writer">
+				</batch:chunk>
+			</batch:tasklet>
+			<batch:next on="COMPLETED" to="secondStep" />
+		</batch:step>
+		<batch:step id="secondStep">
+			<batch:tasklet>
+				<bean class="com.cml.springbatch.xml.FirstTasklet"></bean>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+
+	<bean id="runIdCrementer"
+		class="org.springframework.batch.core.launch.support.RunIdIncrementer" />
+
+	<bean id="launcher"
+		class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+		<property name="jobRepository" ref="jobRepository" />
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />
+
+	<bean name="jobRepository"
+		class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean" />
+	<bean id="jobListener"
+		class="com.cml.springbatch.hello.JobCompletionNotificationListener"></bean>
+
+	<bean id="reader" class="org.springframework.batch.item.file.FlatFileItemReader">
+		<property name="encoding" value="UTF-8" />
+		<property name="resource"
+			value="file:src/main/java/com/cml/springbatch/file/data.csv" />
+		<property name="lineMapper">
+			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+				<property name="lineTokenizer" ref="lineTokenizer" />
+				<!-- 映射的bean对象 -->
+				<property name="fieldSetMapper">
+					<bean
+						class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+						<property name="prototypeBeanName" value="userBean"></property>
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<bean class="com.cml.springbatch.file.User" scope="prototype" id="userBean" />
+
+	<bean id="lineTokenizer"
+		class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+		<property name="delimiter" value="," />
+		<property name="strict" value="true" />
+		<property name="names" value="userId,name,pass" />
+	</bean>
+
+
+	<bean id="writer" class="com.cml.springbatch.file.FileWriter">
+	</bean>
+
+</beans>
