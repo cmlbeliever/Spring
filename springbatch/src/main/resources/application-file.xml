@@ -44,7 +44,7 @@
 	<bean id="reader" class="org.springframework.batch.item.file.FlatFileItemReader">
 		<property name="encoding" value="UTF-8" />
 		<property name="resource"
-			value="file:src/main/java/com/cml/springbatch/file/data.csv" />
+			value="file:#{jobParameters['inputFilePath']}" />
 		<property name="lineMapper">
 			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
 				<property name="lineTokenizer" ref="lineTokenizer" />
